@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.5.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.opt</groupId>
+    <artifactId>opt-core</artifactId>
+    <version>1.0.0</version>
+    <!--<distributionManagement>-->
+        <!--<repository>-->
+            <!--<id>opt</id>-->
+            <!--<url>file:${basedir}/repo</url>-->
+        <!--</repository>-->
+    <!--</distributionManagement>-->
+    <properties>
+        <java.version>1.8</java.version>
+        <github.global.server>github</github.global.server>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.41</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.4.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.2.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis-spring</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+    <profiles>
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.activeProfile>test</spring.activeProfile>
+                <server.admin.host>127.0.0.1</server.admin.host>
+                <servlet.admin.context-path>/portal</servlet.admin.context-path>
+            </properties>
+        </profile>
+    </profiles>
+    <build>
+        <finalName>opt-core</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>/**/*</include>
+                    <include>/*</include>
+                </includes>
+            </resource>
+        </resources>
+
+            <plugins>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
+                    <configuration>
+                        <!-- altDeploymentRepository ：指定替代方案应该部署项目工件的存储库（除了指定的工件）。 -->
+                        <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/opt-core
+                        </altDeploymentRepository>
+                    </configuration>
+                </plugin>
+
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.2.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--github上传插件,用于修改后的发布,执行 mvn clean deploy 自动打包上传到github-->
+                <plugin>
+                    <groupId>com.github.github</groupId>
+                    <artifactId>site-maven-plugin</artifactId>
+                    <version>0.12</version>
+                    <configuration>
+                        <message>Creating site for ${project.artifactId} ${project.version}</message>
+                        <noJekyll>true</noJekyll>
+                        <!--本地jar地址, 对应上面的altDeploymentRepository-->
+                        <outputDirectory>${project.build.directory}/opt-core</outputDirectory>
+                        <!--分支-->
+                        <branch>refs/heads/master</branch>
+                        <merge>true</merge>
+
+                        <includes>
+                            <include>**/*</include>
+                        </includes>
+                        <!--对应github上创建的仓库名称 name-->
+                        <repositoryName>opt-core</repositoryName>
+                        <!--github登录账号 对应的密码存在maven的setting.xml文件中-->
+                        <!--由github组织拥有，则该值将是组织名称，如果由用户拥有，则该值将是用户名-->
+                        <repositoryOwner>18513552271@163.com</repositoryOwner>
+                    </configuration>
+
+                    <!--<executions>-->
+                        <!--<execution>-->
+                            <!--<goals>-->
+                                <!--<goal>site</goal>-->
+                            <!--</goals>-->
+                            <!--<phase>deploy</phase>-->
+                        <!--</execution>-->
+                    <!--</executions>-->
+                </plugin>
+            </plugins>
+
+    </build>
+
+</project>
